@@ -24,22 +24,21 @@ pre_start_action() {
 
 post_start_action() {
   echo "Creating the superuser: $USER"
-  setuser postgres psql -q <<-EOF
+  su postgres -c "psql -q <<-EOF
     DROP ROLE IF EXISTS $USER;
     CREATE ROLE $USER WITH ENCRYPTED PASSWORD '$PASS';
-    ALTER USER $USER WITH ENCRYPTED PASSWORD '$PASS';
     ALTER ROLE $USER WITH SUPERUSER;
     ALTER ROLE $USER WITH LOGIN;
-EOF
+EOF"
 
   # create database if requested
   if [ ! -z "$DB" ]; then
     for db in $DB; do
       echo "Creating database: $db"
-      setuser postgres psql -q <<-EOF
+      su postgres -c "psql -q <<-EOF
       CREATE DATABASE $db WITH OWNER=$USER ENCODING='UTF8';
       GRANT ALL ON DATABASE $db TO $USER
-EOF
+EOF"
     done
   fi
 
@@ -48,12 +47,12 @@ EOF
       for db in $DB; do
         echo "Installing extension for $db: $extension"
         # enable the extension for the user's database
-        setuser postgres psql $db <<-EOF
-        CREATE EXTENSION "$extension";
-EOF
+        su postgres -c "psql $db <<-EOF
+        CREATE EXTENSION \"$extension\";
+EOF"
       done
     done
   fi
 
-  rm /firstrun
+  touch $DATA_DIR/firstrun
 }

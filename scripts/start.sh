@@ -6,10 +6,10 @@ set -e
 
 DATA_DIR=/data
 
-if [[ -e /firstrun ]]; then
-  source /scripts/first_run.sh
-else
+if [[ -e $DATA_DIR/firstrun ]]; then
   source /scripts/normal_run.sh
+else
+  source /scripts/first_run.sh
 fi
 
 wait_for_postgres_and_run_post_start_action() {
@@ -27,4 +27,4 @@ wait_for_postgres_and_run_post_start_action &
 
 # Start PostgreSQL
 echo "Starting PostgreSQL..."
-setuser postgres /usr/lib/postgresql/9.3/bin/postgres -D /etc/postgresql/9.3/main
+su postgres -c '/usr/lib/postgresql/9.3/bin/postgres -D /etc/postgresql/9.3/main'

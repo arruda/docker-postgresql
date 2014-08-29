@@ -7,6 +7,7 @@ pre_start_action() {
   echo "POSTGRES_PASS=$PASS"
   echo "POSTGRES_DATA_DIR=$DATA_DIR"
   if [ ! -z $DB ];then echo "POSTGRES_DB=$DB";fi
+  if [ ! -z $SCHEMA ];then echo "POSTGRES_SCHEMA=$SCHEMA";fi
 
   # test if DATA_DIR has content
   if [[ ! "$(ls -A $DATA_DIR)" ]]; then
@@ -38,6 +39,15 @@ EOF"
       su postgres -c "psql -q <<-EOF
       CREATE DATABASE $db WITH OWNER=$USER ENCODING='UTF8';
       GRANT ALL ON DATABASE $db TO $USER
+EOF"
+    done
+  fi
+  # create schema if requested
+  if [ ! -z "$SCHEMA" ]; then
+    for schema in $SCHEMA; do
+      echo "Creating schema: $schema"
+      su postgres -c "psql $DB -q <<-EOF
+      CREATE SCHEMA $schema AUTHORIZATION $USER;
 EOF"
     done
   fi

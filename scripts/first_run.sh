@@ -26,10 +26,10 @@ pre_start_action() {
 post_start_action() {
   echo "Creating the superuser: $USER"
   su postgres -c "psql -q <<-EOF
-    DROP ROLE IF EXISTS $USER;
-    CREATE ROLE $USER WITH ENCRYPTED PASSWORD '$PASS';
-    ALTER ROLE $USER WITH SUPERUSER;
-    ALTER ROLE $USER WITH LOGIN;
+    DROP ROLE IF EXISTS \"$USER\";
+    CREATE ROLE \"$USER\" WITH ENCRYPTED PASSWORD '$PASS';
+    ALTER ROLE \"$USER\" WITH SUPERUSER;
+    ALTER ROLE \"$USER\" WITH LOGIN;
 EOF"
 
   # create database if requested
@@ -37,8 +37,8 @@ EOF"
     for db in $DB; do
       echo "Creating database: $db"
       su postgres -c "psql -q <<-EOF
-      CREATE DATABASE $db WITH OWNER=$USER ENCODING='UTF8';
-      GRANT ALL ON DATABASE $db TO $USER
+      CREATE DATABASE \"$db\" WITH OWNER=\"$USER\" ENCODING='UTF8';
+      GRANT ALL ON DATABASE \"$db\" TO \"$USER\"
 EOF"
     done
   fi
@@ -47,7 +47,7 @@ EOF"
     for schema in $SCHEMA; do
       echo "Creating schema: $schema"
       su postgres -c "psql $DB -q <<-EOF
-      CREATE SCHEMA $schema AUTHORIZATION $USER;
+      CREATE SCHEMA \"$schema\" AUTHORIZATION \"$USER\";
 EOF"
     done
   fi
